@@ -281,11 +281,46 @@
 
     <script src="../js/script.js"></script>
     <script src="../js/universalis-api.js"></script>
+    <script src="../js/complete-recipe-loader.js"></script>
     <script>
         // Market Board API Integration using Universalis
         let currentServer = '';
         
+        // Enhanced Recipe Search with Complete Database
+        let enhancedRecipeSearch = false;
+        
         document.getElementById('search-btn').addEventListener('click', searchMarketBoard);
+        
+        // Initialize enhanced recipe search when complete loader is ready
+        async function initializeEnhancedRecipeSearch() {
+            try {
+                await window.CompleteRecipeLoader.initialize();
+                enhancedRecipeSearch = true;
+                
+                // Update the recipe count display
+                const stats = window.CompleteRecipeLoader.getStatistics();
+                const searchLabel = document.querySelector('label[for="recipe-search"]');
+                if (searchLabel) {
+                    searchLabel.textContent = `Search Recipe (${stats.totalRecipes.toLocaleString()} available):`;
+                }
+                
+                console.log('✅ Enhanced recipe search initialized!');
+                console.log('📊 Recipe Statistics:', stats);
+            } catch (error) {
+                console.warn('⚠️ Enhanced recipe search failed, using local recipes:', error);
+                enhancedRecipeSearch = false;
+            }
+        }
+        
+        // Initialize when page loads
+        if (window.CompleteRecipeLoader) {
+            initializeEnhancedRecipeSearch();
+        } else {
+            // Fallback if loader isn't available yet
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(initializeEnhancedRecipeSearch, 1000);
+            });
+        }
         document.getElementById('item-search').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 searchMarketBoard();
@@ -4512,9 +4547,33 @@ ${itemInfo ? `• Item: <strong>${itemInfo.name}</strong> (ID: ${itemInfo.id})
                 return;
             }
 
-            // Search through recipes
-            const matches = [];
-            for (const [recipeId, recipe] of Object.entries(recipes)) {
+            // Use enhanced search if available, otherwise fall back to local recipes
+            let matches = [];
+            
+            if (enhancedRecipeSearch && window.CompleteRecipeLoader.isLoaded()) {
+                // Use comprehensive recipe database
+                matches = window.CompleteRecipeLoader.searchRecipes(query);
+                
+                // Add job abbreviation matching
+                const abbrevMap = {
+                    'bsm': 'Blacksmith', 'gsm': 'Goldsmith', 'arm': 'Armorer',
+                    'ltw': 'Leatherworker', 'wvr': 'Weaver', 'alc': 'Alchemist',
+                    'cul': 'Culinarian', 'crp': 'Carpenter'
+                };
+                
+                if (abbrevMap[query]) {
+                    const jobRecipes = window.CompleteRecipeLoader.getRecipesByJob(abbrevMap[query]);
+                    jobRecipes.slice(0, 10).forEach(recipe => {
+                        matches.push({
+                            id: recipe.id,
+                            recipe: recipe.recipe,
+                            relevance: 75
+                        });
+                    });
+                }
+            } else {
+                // Fall back to hardcoded recipes
+                for (const [recipeId, recipe] of Object.entries(recipes)) {
                 const recipeName = recipe.name.toLowerCase();
                 const recipeJob = recipe.job || 'Unknown';
                 const jobLower = recipeJob.toLowerCase();
@@ -4531,6 +4590,7 @@ ${itemInfo ? `• Item: <strong>${itemInfo.name}</strong> (ID: ${itemInfo.id})
                     (query === 'cul' && jobLower === 'culinarian') ||
                     (query === 'crp' && jobLower === 'carpenter')) {
                     matches.push({ id: recipeId, recipe: recipe });
+                }
                 }
             }
 
@@ -4573,7 +4633,15 @@ ${itemInfo ? `• Item: <strong>${itemInfo.name}</strong> (ID: ${itemInfo.id})
                 document.querySelectorAll('.recipe-suggestion').forEach(suggestion => {
                     suggestion.addEventListener('click', function() {
                         const recipeId = this.dataset.recipeId;
-                        const recipe = recipes[recipeId];
+                        // Get recipe from enhanced database or fallback
+                        let recipe;
+                        if (enhancedRecipeSearch && window.CompleteRecipeLoader.isLoaded()) {
+                            const allRecipes = window.CompleteRecipeLoader.getAllRecipes();
+                            recipe = allRecipes[recipeId];
+                        } else {
+                            recipe = recipes[recipeId];
+                        }
+                        
                         const emoji = jobEmojis[recipe.job] || '🔧';
                         const jobAbbrev = getJobAbbrev(recipe.job);
                         
@@ -4626,8 +4694,19 @@ ${itemInfo ? `• Item: <strong>${itemInfo.name}</strong> (ID: ${itemInfo.id})
                 return;
             }
             
-            const recipe = recipes[recipeId];
-            if (!recipe) return;
+            // Get recipe from enhanced database or fallback
+            let recipe;
+            if (enhancedRecipeSearch && window.CompleteRecipeLoader.isLoaded()) {
+                const allRecipes = window.CompleteRecipeLoader.getAllRecipes();
+                recipe = allRecipes[recipeId];
+            } else {
+                recipe = recipes[recipeId];
+            }
+            
+            if (!recipe) {
+                alert('Recipe not found! Please select a valid recipe.');
+                return;
+            }
             
             document.getElementById('recipe-loading').style.display = 'block';
             document.getElementById('recipe-results').style.display = 'none';
