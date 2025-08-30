@@ -51,21 +51,30 @@ class CompleteRecipeLoader {
     // Load comprehensive offline recipe database (most reliable)
     async loadComprehensiveRecipes() {
         try {
-            // Check for complete FFXIV database first (8000+ recipes)
+            // Check for authentic XIVAPI data first (highest priority)
+            if (window.XIVAPI_MASS_RECIPES) {
+                this.recipes = { ...this.recipes, ...window.XIVAPI_MASS_RECIPES };
+                console.log(`🎯 Loaded ${Object.keys(window.XIVAPI_MASS_RECIPES).length} AUTHENTIC XIVAPI recipes`);
+            }
+            
+            // Then check for complete FFXIV database (8000+ recipes)
             if (window.COMPLETE_FFXIV_RECIPES) {
                 this.recipes = { ...this.recipes, ...window.COMPLETE_FFXIV_RECIPES };
-                console.log(`🎯 Loaded ${Object.keys(window.COMPLETE_FFXIV_RECIPES).length} COMPLETE FFXIV recipes`);
-                return;
+                console.log(`🚀 Loaded ${Object.keys(window.COMPLETE_FFXIV_RECIPES).length} COMPLETE FFXIV recipes`);
             }
             
             // Fallback to smaller comprehensive database
             if (window.COMPREHENSIVE_RECIPES) {
                 this.recipes = { ...this.recipes, ...window.COMPREHENSIVE_RECIPES };
                 console.log(`🗂️ Loaded ${Object.keys(window.COMPREHENSIVE_RECIPES).length} comprehensive recipes`);
-                return;
             }
             
-            console.warn('⚠️ No comprehensive recipe databases found - using hardcoded recipes only');
+            const totalRecipes = Object.keys(this.recipes).length;
+            if (totalRecipes === 0) {
+                console.warn('⚠️ No comprehensive recipe databases found - using hardcoded recipes only');
+            } else {
+                console.log(`✅ Total recipes available: ${totalRecipes}`);
+            }
         } catch (error) {
             console.warn('⚠️ Could not load comprehensive recipes:', error);
         }
