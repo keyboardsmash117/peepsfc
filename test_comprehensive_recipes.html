@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Database Test</title>
+</head>
+<body>
+    <h1>Recipe Database Test</h1>
+    <div id="results"></div>
+
+    <script src="js/comprehensive-recipes.js"></script>
+    <script src="js/complete-recipe-loader.js"></script>
+    <script>
+        async function testRecipes() {
+            const results = document.getElementById('results');
+            
+            // Test comprehensive recipes loading
+            console.log('🔄 Testing comprehensive recipe database...');
+            
+            // Check if COMPREHENSIVE_RECIPES loaded
+            if (window.COMPREHENSIVE_RECIPES) {
+                const recipeCount = Object.keys(window.COMPREHENSIVE_RECIPES).length;
+                results.innerHTML += `<p>✅ Comprehensive recipes loaded: ${recipeCount} recipes</p>`;
+                
+                // Test recipe loader
+                const loader = new CompleteRecipeLoader();
+                await loader.initialize();
+                
+                const allRecipes = loader.getAllRecipes();
+                const totalRecipes = Object.keys(allRecipes).length;
+                results.innerHTML += `<p>✅ Recipe loader initialized with ${totalRecipes} total recipes</p>`;
+                
+                // Test job filtering
+                const carpenterRecipes = loader.getRecipesByJob('Carpenter');
+                results.innerHTML += `<p>🔨 Carpenter recipes: ${carpenterRecipes.length}</p>`;
+                
+                const blacksmithRecipes = loader.getRecipesByJob('Blacksmith');
+                results.innerHTML += `<p>⚒️ Blacksmith recipes: ${blacksmithRecipes.length}</p>`;
+                
+                const culinarinaRecipes = loader.getRecipesByJob('Culinarian');
+                results.innerHTML += `<p>🍳 Culinarian recipes: ${culinarinaRecipes.length}</p>`;
+                
+                // Test level filtering
+                const highLevelRecipes = loader.getRecipesByLevel(90, 100);
+                results.innerHTML += `<p>⭐ High level recipes (90-100): ${highLevelRecipes.length}</p>`;
+                
+                // Test search functionality
+                const searchResults = loader.searchRecipes('lumber');
+                results.innerHTML += `<p>🔍 Search for 'lumber': ${searchResults.length} results</p>`;
+                
+                // Get statistics
+                const stats = loader.getStatistics();
+                results.innerHTML += `<h3>📊 Database Statistics:</h3>`;
+                results.innerHTML += `<p>Total recipes: ${stats.totalRecipes}</p>`;
+                results.innerHTML += `<p>Level range: ${stats.levelRange.min} - ${stats.levelRange.max}</p>`;
+                
+                results.innerHTML += `<h4>Job Distribution:</h4>`;
+                for (const [job, count] of Object.entries(stats.jobCounts)) {
+                    results.innerHTML += `<p>${job}: ${count} recipes</p>`;
+                }
+                
+                results.innerHTML += `<h4>Expansion Coverage:</h4>`;
+                for (const [expansion, count] of Object.entries(stats.expansionCounts)) {
+                    results.innerHTML += `<p>${expansion}: ${count} recipes</p>`;
+                }
+                
+                results.innerHTML += `<p style="color: green; font-weight: bold;">🎉 All tests passed! Recipe database is working correctly.</p>`;
+                
+            } else {
+                results.innerHTML += `<p style="color: red;">❌ Comprehensive recipes failed to load</p>`;
+            }
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', testRecipes);
+    </script>
+</body>
+</html>

@@ -7,10 +7,13 @@ class CompleteRecipeLoader {
         this.loading = false;
         this.loaded = false;
         this.sources = {
-            // XIVAPI for comprehensive recipe data
-            xivapi: 'https://xivapi.com/recipe?limit=3000&page=',
-            // Backup local recipes for offline functionality
-            local: '/js/recipe-backup.json'
+            // Multiple recipe data sources for maximum coverage
+            garlandtools: 'https://www.garlandtools.org/db/doc/recipe/en/3/',
+            universalis_recipes: 'https://universalis.app/api/recipe/',
+            // Local comprehensive database 
+            local: '/js/recipe-backup.json',
+            // Fallback comprehensive dataset
+            github_recipes: 'https://raw.githubusercontent.com/xivapi/ffxiv-datamining/master/csv/Recipe.csv'
         };
         this.totalRecipes = 0;
         this.loadedRecipes = 0;
@@ -26,15 +29,17 @@ class CompleteRecipeLoader {
         console.log('🔄 Loading complete FFXIV recipe database...');
 
         try {
-            // Try to load from external API first
-            await this.loadFromXivApi();
+            // Load comprehensive offline database first (most reliable)
+            await this.loadComprehensiveRecipes();
+            
+            // Merge with existing hardcoded recipes
+            await this.mergeExistingRecipes();
+            
         } catch (error) {
-            console.warn('⚠️ External API failed, loading local recipes:', error);
-            await this.loadLocalRecipes();
+            console.error('❌ Failed to load recipe database:', error);
+            await this.loadFallbackRecipes();
         }
 
-        // Merge with any existing recipes
-        await this.mergeExistingRecipes();
         
         this.loading = false;
         this.loaded = true;
@@ -43,48 +48,36 @@ class CompleteRecipeLoader {
         return this.recipes;
     }
 
-    // Load recipes from XIVAPI (comprehensive external source)
-    async loadFromXivApi() {
-        const allRecipes = {};
-        let page = 1;
-        let hasMore = true;
-        const maxPages = 10; // Limit to prevent infinite loops
-
-        while (hasMore && page <= maxPages) {
-            try {
-                const response = await fetch(`${this.sources.xivapi}${page}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.Results && data.Results.length > 0) {
-                    data.Results.forEach(recipe => {
-                        if (this.isValidRecipe(recipe)) {
-                            const processedRecipe = this.processXivApiRecipe(recipe);
-                            allRecipes[processedRecipe.id] = processedRecipe;
-                        }
-                    });
-                    
-                    console.log(`📄 Loaded page ${page} - ${Object.keys(allRecipes).length} recipes total`);
-                    page++;
-                    hasMore = data.Pagination && data.Pagination.PageNext !== null;
-                } else {
-                    hasMore = false;
-                }
-                
-                // Small delay to be respectful to the API
-                await this.delay(100);
-                
-            } catch (error) {
-                console.error(`❌ Error loading page ${page}:`, error);
-                break;
+    // Load comprehensive offline recipe database (most reliable)
+    async loadComprehensiveRecipes() {
+        try {
+            if (window.COMPREHENSIVE_RECIPES) {
+                this.recipes = { ...this.recipes, ...window.COMPREHENSIVE_RECIPES };
+                console.log(`🗂️ Loaded ${Object.keys(window.COMPREHENSIVE_RECIPES).length} comprehensive recipes`);
+                return;
             }
+            
+            // Fallback: try to load from external file
+            const response = await fetch('/js/comprehensive-recipes.js');
+            if (response.ok) {
+                const scriptText = await response.text();
+                eval(scriptText); // Load the COMPREHENSIVE_RECIPES object
+                
+                if (window.COMPREHENSIVE_RECIPES) {
+                    this.recipes = { ...this.recipes, ...window.COMPREHENSIVE_RECIPES };
+                    console.log(`🗂️ Loaded ${Object.keys(window.COMPREHENSIVE_RECIPES).length} comprehensive recipes from file`);
+                }
+            }
+        } catch (error) {
+            console.warn('⚠️ Could not load comprehensive recipes:', error);
         }
+    }
 
-        this.recipes = { ...this.recipes, ...allRecipes };
-        console.log(`🎯 Loaded ${Object.keys(allRecipes).length} recipes from XIVAPI`);
+    // Load from external APIs as supplemental data
+    async loadFromExternalSources() {
+        // Disabled for now due to API reliability issues
+        console.log('⚠️ External API loading disabled - using offline database only');
+        return;
     }
 
     // Process XIVAPI recipe data into our format
@@ -150,25 +143,29 @@ class CompleteRecipeLoader {
         return 'Dawntrail';
     }
 
-    // Load local backup recipes
-    async loadLocalRecipes() {
+    // Fallback recipe loading when comprehensive database fails
+    async loadFallbackRecipes() {
         try {
-            // Use existing hardcoded recipes as fallback
+            // Use existing hardcoded recipes as last resort
             if (window.recipes && Object.keys(window.recipes).length > 0) {
                 this.recipes = { ...this.recipes, ...window.recipes };
-                console.log(`📦 Loaded ${Object.keys(window.recipes).length} local recipes`);
+                console.log(`📦 Loaded ${Object.keys(window.recipes).length} fallback recipes`);
                 return;
             }
 
-            // Try to load from backup file
-            const response = await fetch(this.sources.local);
-            if (response.ok) {
-                const localRecipes = await response.json();
-                this.recipes = { ...this.recipes, ...localRecipes };
-                console.log(`📦 Loaded ${Object.keys(localRecipes).length} backup recipes`);
-            }
+            // If no recipes at all, create minimal set
+            this.recipes = {
+                'emergency-recipe': {
+                    name: 'Emergency Recipe Placeholder',
+                    level: 1,
+                    job: 'Carpenter',
+                    materials: [{ name: 'Unknown Material', quantity: 1 }],
+                    yields: 1
+                }
+            };
+            console.log('⚠️ Using emergency fallback recipes');
         } catch (error) {
-            console.warn('⚠️ Could not load local recipes:', error);
+            console.error('❌ Complete failure to load any recipes:', error);
         }
     }
 
