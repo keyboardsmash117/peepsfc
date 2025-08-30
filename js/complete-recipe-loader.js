@@ -51,23 +51,21 @@ class CompleteRecipeLoader {
     // Load comprehensive offline recipe database (most reliable)
     async loadComprehensiveRecipes() {
         try {
+            // Check for complete FFXIV database first (8000+ recipes)
+            if (window.COMPLETE_FFXIV_RECIPES) {
+                this.recipes = { ...this.recipes, ...window.COMPLETE_FFXIV_RECIPES };
+                console.log(`🎯 Loaded ${Object.keys(window.COMPLETE_FFXIV_RECIPES).length} COMPLETE FFXIV recipes`);
+                return;
+            }
+            
+            // Fallback to smaller comprehensive database
             if (window.COMPREHENSIVE_RECIPES) {
                 this.recipes = { ...this.recipes, ...window.COMPREHENSIVE_RECIPES };
                 console.log(`🗂️ Loaded ${Object.keys(window.COMPREHENSIVE_RECIPES).length} comprehensive recipes`);
                 return;
             }
             
-            // Fallback: try to load from external file
-            const response = await fetch('/js/comprehensive-recipes.js');
-            if (response.ok) {
-                const scriptText = await response.text();
-                eval(scriptText); // Load the COMPREHENSIVE_RECIPES object
-                
-                if (window.COMPREHENSIVE_RECIPES) {
-                    this.recipes = { ...this.recipes, ...window.COMPREHENSIVE_RECIPES };
-                    console.log(`🗂️ Loaded ${Object.keys(window.COMPREHENSIVE_RECIPES).length} comprehensive recipes from file`);
-                }
-            }
+            console.warn('⚠️ No comprehensive recipe databases found - using hardcoded recipes only');
         } catch (error) {
             console.warn('⚠️ Could not load comprehensive recipes:', error);
         }

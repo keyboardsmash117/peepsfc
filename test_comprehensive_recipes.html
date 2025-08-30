@@ -10,6 +10,7 @@
     <div id="results"></div>
 
     <script src="js/comprehensive-recipes.js"></script>
+    <script src="js/complete-ffxiv-recipes.js"></script>
     <script src="js/complete-recipe-loader.js"></script>
     <script>
         async function testRecipes() {
@@ -18,10 +19,16 @@
             // Test comprehensive recipes loading
             console.log('🔄 Testing comprehensive recipe database...');
             
-            // Check if COMPREHENSIVE_RECIPES loaded
-            if (window.COMPREHENSIVE_RECIPES) {
-                const recipeCount = Object.keys(window.COMPREHENSIVE_RECIPES).length;
-                results.innerHTML += `<p>✅ Comprehensive recipes loaded: ${recipeCount} recipes</p>`;
+            // Check if COMPLETE_FFXIV_RECIPES loaded
+            if (window.COMPLETE_FFXIV_RECIPES) {
+                const recipeCount = Object.keys(window.COMPLETE_FFXIV_RECIPES).length;
+                results.innerHTML += `<p>🎯 COMPLETE FFXIV recipes loaded: ${recipeCount} recipes</p>`;
+                
+                // Also check for comprehensive recipes
+                if (window.COMPREHENSIVE_RECIPES) {
+                    const compCount = Object.keys(window.COMPREHENSIVE_RECIPES).length;
+                    results.innerHTML += `<p>✅ Comprehensive recipes also loaded: ${compCount} recipes</p>`;
+                }
                 
                 // Test recipe loader
                 const loader = new CompleteRecipeLoader();
