@@ -1,0 +1,155 @@
+{
+  "database_info": {
+    "title": "Complete FFXIV Crafting Recipe Database",
+    "total_recipes": "1843+",
+    "coverage": "All 8 crafting classes, Levels 1-100",
+    "expansions": "Base Game through Dawntrail",
+    "last_updated": "2025-08-28",
+    "source": "FFXIV Console Games Wiki"
+  },
+  "classes": {
+    "blacksmith": {
+      "total_recipes": "200+",
+      "specialties": ["Ingots", "Weapons", "Tools"],
+      "sample_recipes": {
+        "bronze_ingot": {
+          "name": "Bronze Ingot",
+          "level": 1,
+          "materials": [
+            {"name": "Copper Ore", "quantity": 1},
+            {"name": "Tin Ore", "quantity": 1},
+            {"name": "Fire Shard", "quantity": 1}
+          ],
+          "yields": 1
+        },
+        "rinascita_ingot": {
+          "name": "Rinascita Ingot", 
+          "level": 100,
+          "materials": [
+            {"name": "Raw Rinascita", "quantity": 5},
+            {"name": "Fire Crystal", "quantity": 8}
+          ],
+          "yields": 1
+        }
+      }
+    },
+    "goldsmith": {
+      "total_recipes": "220+",
+      "specialties": ["Jewelry", "Accessories", "Precious Metals"],
+      "sample_recipes": {
+        "copper_ingot": {
+          "name": "Copper Ingot",
+          "level": 1,
+          "materials": [
+            {"name": "Copper Ore", "quantity": 1},
+            {"name": "Wind Shard", "quantity": 1}
+          ],
+          "yields": 1
+        }
+      }
+    },
+    "armorer": {
+      "total_recipes": "200+",
+      "specialties": ["Armor", "Shields", "Plates"],
+      "sample_recipes": {
+        "bronze_plate": {
+          "name": "Bronze Plate",
+          "level": 3,
+          "materials": [
+            {"name": "Bronze Ingot", "quantity": 1},
+            {"name": "Ice Shard", "quantity": 1}
+          ],
+          "yields": 1
+        }
+      }
+    },
+    "leatherworker": {
+      "total_recipes": "210+",
+      "specialties": ["Leather", "Light Armor", "Accessories"],
+      "sample_recipes": {
+        "leather": {
+          "name": "Leather",
+          "level": 1,
+          "materials": [
+            {"name": "Animal Skin", "quantity": 1},
+            {"name": "Earth Shard", "quantity": 1}
+          ],
+          "yields": 1
+        }
+      }
+    },
+    "weaver": {
+      "total_recipes": "220+",
+      "specialties": ["Cloth", "Garments", "Fabrics"],
+      "sample_recipes": {
+        "hempen_yarn": {
+          "name": "Hempen Yarn",
+          "level": 1,
+          "materials": [
+            {"name": "Moko Grass", "quantity": 1},
+            {"name": "Lightning Shard", "quantity": 1}
+          ],
+          "yields": 1
+        }
+      }
+    },
+    "alchemist": {
+      "total_recipes": "250+",
+      "specialties": ["Potions", "Materials", "Consumables"],
+      "sample_recipes": {
+        "distilled_water": {
+          "name": "Distilled Water",
+          "level": 1,
+          "materials": [
+            {"name": "Muddy Water", "quantity": 1},
+            {"name": "Water Shard", "quantity": 1}
+          ],
+          "yields": 1
+        }
+      }
+    },
+    "culinarian": {
+      "total_recipes": "280+",
+      "specialties": ["Food", "Drinks", "Consumables"],
+      "sample_recipes": {
+        "maple_syrup": {
+          "name": "Maple Syrup",
+          "level": 1,
+          "materials": [
+            {"name": "Maple Sap", "quantity": 1},
+            {"name": "Fire Shard", "quantity": 1}
+          ],
+          "yields": 1
+        }
+      }
+    },
+    "carpenter": {
+      "total_recipes": "461+",
+      "specialties": ["Lumber", "Furniture", "Weapons", "Housing"],
+      "sample_recipes": {
+        "maple_lumber": {
+          "name": "Maple Lumber",
+          "level": 1,
+          "materials": [
+            {"name": "Maple Log", "quantity": 1},
+            {"name": "Wind Shard", "quantity": 1}
+          ],
+          "yields": 1
+        },
+        "claro_walnut_fishing_rod": {
+          "name": "Claro Walnut Fishing Rod",
+          "level": 100,
+          "materials": [
+            {"name": "Claro Walnut Lumber", "quantity": 2},
+            {"name": "Ra'Kaznar Ingot", "quantity": 1},
+            {"name": "Acacia Lumber", "quantity": 8},
+            {"name": "Wind Crystal", "quantity": 8},
+            {"name": "Ice Crystal", "quantity": 8}
+          ],
+          "yields": 1
+        }
+      }
+    }
+  },
+  "note": "This is a summary export. The complete database with all 1,843+ recipes is integrated into the crafting-gathering.html file."
+}
